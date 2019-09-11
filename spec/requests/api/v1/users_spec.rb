@@ -65,4 +65,34 @@ describe 'Users API', type: :request do
       end
     end
   end
+
+  describe 'PUT /users/:id' do
+    before do
+      put "/users/#{user_id}", params: { user: user_params }.to_json, headers: headers
+    end
+
+    context 'when the request are valid' do
+      let(:user_params) { { email: 'new_email_my_cookbook@email.com' } }
+
+      it 'returns json data for the updated user' do
+        expect(json_body[:email]).to eq(user_params[:email])
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'when the request are invalid' do
+      let(:user_params) { attributes_for(:user, email: 'invalid_email@') }
+
+      it 'returns status code 422' do
+        expect(response).to have_http_status(422)
+      end
+
+      it 'returns the json data for the errors' do
+        expect(json_body).to have_key(:errors)
+      end
+    end
+  end
 end
